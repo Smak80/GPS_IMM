@@ -6,6 +6,7 @@ import android.content.pm.PackageManager
 import android.location.Location
 import android.location.LocationListener
 import android.location.LocationManager
+import android.os.Bundle
 import androidx.core.app.ActivityCompat
 
 object LocatingHelper : LocationListener {
@@ -42,5 +43,14 @@ object LocatingHelper : LocationListener {
 
     fun stopLocating(){
         locationManager?.removeUpdates(this)
+    }
+
+    override fun onStatusChanged(provider: String?, status: Int, extras: Bundle?) {
+    }
+
+    override fun onProviderEnabled(provider: String) {
+    }
+
+    override fun onProviderDisabled(provider: String) {
     }
 }

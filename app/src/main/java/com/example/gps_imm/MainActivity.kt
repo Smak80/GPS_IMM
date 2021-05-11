@@ -1,8 +1,10 @@
 package com.example.gps_imm
 
 import android.Manifest
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.location.Location
+import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.Button
@@ -35,7 +37,7 @@ class MainActivity : AppCompatActivity() {
                 0
                 )
             } else {
-                LocatingHelper.startLocating(this, ::onLocationUpdate)
+                changeServiceState()
             }
         }
     }
@@ -52,7 +54,32 @@ class MainActivity : AppCompatActivity() {
                     grantResults[0] == PackageManager.PERMISSION_GRANTED ||
                             grantResults[1] == PackageManager.PERMISSION_GRANTED
                     )){
-            LocatingHelper.startLocating(this, ::onLocationUpdate)
+            changeServiceState(true)
+        }
+    }
+
+
+
+    private fun changeServiceState(forceStart: Boolean = false) {
+        if (!LocationService.running || forceStart){
+            sendCommand(Constants.START_LOCATION_SERVICE)
+            LocationData.location.observe(this){
+                //Информация об изменении координат
+            }
+        } else {
+            sendCommand(Constants.STOP_LOCATING_SERVICE)
+            LocationData.location.removeObservers(this)
+        }
+    }
+
+    private fun sendCommand(command: String) {
+        val intent = Intent(this, LocationService::class.java).apply{
+            action = command
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O){
+                startForegroundService(intent)
+            } else {
+                startService(intent)
+            }
         }
     }
 
